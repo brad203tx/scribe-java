@@ -27,7 +27,11 @@ public class Response
       connection.connect();
       code = connection.getResponseCode();
       headers = parseHeaders(connection);
-      stream = isSuccessful() ? connection.getInputStream() : connection.getErrorStream();
+      boolean gzipped = "gzip".equals(connection.getContentEncoding());
+      stream = isSuccessful() ? gzipped ? new GZIPInputStream(
+			  connection.getInputStream()) : connection.getInputStream()
+			    : gzipped ? new GZIPInputStream(connection.getErrorStream())
+					  : connection.getErrorStream();
     }
     catch (UnknownHostException e)
     {
